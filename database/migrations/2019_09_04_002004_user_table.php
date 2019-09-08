@@ -18,6 +18,7 @@ class UserTable extends Migration
             $table->bigIncrements('id');
             $table->string('login');
             $table->string('password');
+            $table->string('name');
             $table->string('api_token');
             $table->double('latitude')->nullable();     // Широта
             $table->double('longitude')->nullable();    // Долгота

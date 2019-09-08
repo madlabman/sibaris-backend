@@ -32,12 +32,13 @@ class UserController extends Controller
     public function signUp(Request $request)
     {
         // Проверяем, что поля переданы и не пусты
-        if ($request->filled(['login', 'password'])) {
+        if ($request->filled(['login', 'password', 'name'])) {
             $user = User::where('login', $request->input('login'))->first();
             if (empty($user)) {
                 $user = new User();
                 $user->login = $request->input('login');
                 $user->password = $request->input('password');
+                $user->name = $request->input('name');
                 $user->save();
                 return $this->successResponse([]);
             } else {
