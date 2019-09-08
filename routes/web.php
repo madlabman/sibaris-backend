@@ -14,5 +14,6 @@
 // См. App\Http\Controllers\UserController
 $router->put('signUp', 'UserController@signUp');
 $router->post('signIn', 'UserController@signIn');
+$router->get('getUserInfo', 'UserController@getUserInfo');
 $router->patch('refreshPosition', 'UserController@refreshPosition');
 $router->patch('refreshGoogleToken', 'UserController@refreshGoogleToken');

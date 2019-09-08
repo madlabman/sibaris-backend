@@ -19,7 +19,9 @@ class UserTable extends Migration
             $table->string('login');
             $table->string('password');
             $table->string('name');
+            $table->string('email');
             $table->string('api_token');
+            $table->double('accuracy')->nullable();     // Точность
             $table->double('latitude')->nullable();     // Широта
             $table->double('longitude')->nullable();    // Долгота
             $table->timestamps();   // Поля created_at и updated_at будут автоматически созданы

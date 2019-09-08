@@ -20,6 +20,7 @@ class UserController extends Controller
         $this->middleware('auth', ['only' => [
             'refreshPosition',
             'refreshGoogleToken',
+            'getUserInfo',
         ]]);
     }
 
@@ -32,15 +33,16 @@ class UserController extends Controller
     public function signUp(Request $request)
     {
         // Проверяем, что поля переданы и не пусты
-        if ($request->filled(['login', 'password', 'name'])) {
+        if ($request->filled(['login', 'password', 'name', 'email'])) {
             $user = User::where('login', $request->input('login'))->first();
             if (empty($user)) {
                 $user = new User();
                 $user->login = $request->input('login');
                 $user->password = $request->input('password');
                 $user->name = $request->input('name');
+                $user->email = $request->input('email');
                 $user->save();
-                return $this->successResponse([]);
+                return $this->successResponse(['token' => $user->api_token]);
             } else {
                 // Вернуть ошибку - пользователь существует
                 return $this->errorResponse(['error' => self::USER_EXIST], 409);
@@ -84,9 +86,10 @@ class UserController extends Controller
      */
     public function refreshPosition(Request $request)
     {
-        if ($request->filled(['latitude', 'longitude'])) {
+        if ($request->filled(['latitude', 'longitude', 'accuracy'])) {
             $user = app('auth')->user();
             if (!empty($user)) {
+                $user->accuracy = $request->input('accuracy');
                 $user->latitude = $request->input('latitude');
                 $user->longitude = $request->input('longitude');
                 $user->save();
@@ -126,5 +129,21 @@ class UserController extends Controller
         }
         // Вернуть ошибку - не все поля заданы
         return $this->errorResponse(['error' => self::NOT_ENOUGH_DATA], 400);
+    }
+
+    /**
+     * Возвращает данные пользователя.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Laravel\Lumen\Http\ResponseFactory
+     */
+    public function getUserInfo(Request $request)
+    {
+        $user = app('auth')->user();
+        if (!empty($user)) {
+            return $this->successResponse($user->toArray());
+        }
+        // Вернуть ошибку - пользователь не найден
+        return $this->errorResponse(['error' => self::USER_NOT_FOUND], 404);
     }
 }

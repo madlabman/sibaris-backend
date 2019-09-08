@@ -33,6 +33,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $hidden = [
+        'api_token',
         'password',
     ];
 
@@ -52,7 +53,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function getPositionAttribute()
     {
-        return new GeoPosition($this->latitude, $this->longitude);
+        return new GeoPosition($this->accuracy, $this->latitude, $this->longitude);
     }
 
     // Хук на установку пароля пользователя
