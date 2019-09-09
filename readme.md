@@ -12,3 +12,9 @@
 3. Выполнить команду `composer install` - установит все необходимые зависимости
 3. Выполнить команду `php artisan migrate` - создаст структуру БД
 4. Выполнить команду `php -S 127.0.0.1:8000 -t public/` - встроенный в PHP веб-сервер "смотрящий" в директорию `public`
+
+## Отправка пуш-уведомлений с ссылкой
+
+Для отправки реализована [команда](https://laravel.com/docs/5.8/artisan#writing-commands) `\App\Console\Commands\SendPush`
+
+Вызываем команду: `php artisan push:send <user_id> <uri>`

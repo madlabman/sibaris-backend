@@ -116,7 +116,10 @@ class UserController extends Controller
                 // Обновить запись в базе
                 GoogleToken::updateOrCreate(
                     ['token' => $request->input('old_token')],  // Условие поиска
-                    ['token' => $request->input('new_token')]   // Данные для обновления
+                    [
+                        'user_id' => app('auth')->user()->id,
+                        'token' => $request->input('new_token'),
+                    ]   // Данные для обновления
                 );
             } else {
                 // Создать новую запись для пользователя
