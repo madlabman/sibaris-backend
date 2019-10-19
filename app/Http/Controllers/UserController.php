@@ -188,7 +188,9 @@ class UserController extends Controller
                         $request->input('subject'),
                         $request->input('message'),
                         'https://upload.wikimedia.org/wikipedia/commons/e/ec/RandomBitmap.png')
-                );
+                )->withData([
+                    'uri' => 'https://vk.com',
+                ]);
             // Получаем пользователей исходя из параметров запроса
             $users = null;
             if ($request->filled('created_low') && $request->filled('created_high')) {

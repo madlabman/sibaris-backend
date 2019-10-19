@@ -10,9 +10,7 @@ POST http://127.0.0.1:8000/sendPush
 Content-Type: application/json
 
 {
-  "message": "New message to push",
-  "created_low": "2019-09-11",
-  "created_high": "2019-09-12"
+  "message": "New message to push"
 }
 
 ###
