@@ -17,3 +17,4 @@ $router->post('signIn', 'UserController@signIn');
 $router->get('getUserInfo', 'UserController@getUserInfo');
 $router->patch('refreshPosition', 'UserController@refreshPosition');
 $router->patch('refreshGoogleToken', 'UserController@refreshGoogleToken');
+$router->post('sendPush', 'UserController@sendPush');

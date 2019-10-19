@@ -4,7 +4,14 @@ namespace App\Http\Controllers;
 
 use App\GoogleToken;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
+use Kreait\Firebase\ServiceAccount;
 
 class UserController extends Controller
 {
@@ -148,5 +155,71 @@ class UserController extends Controller
         }
         // Вернуть ошибку - пользователь не найден
         return $this->errorResponse(['error' => self::USER_NOT_FOUND], 404);
+    }
+
+    /**
+     * Метод, позволяющий отправку пуш-уведомления пользователям.
+     *
+     * Параметры запроса:
+     * message - текст сообщения
+     * subject - тема сообщения
+     * created_low - нижняя граница даты регистрации в одном из стандартных форматов
+     * created_high - верхняя граница даты регистрации в одном из стандартных форматов
+     *
+     * @param Request $request
+     * @return Response
+     */
+    public function sendPush(Request $request): Response
+    {
+        // Никакой авторизации на данный момент не проводим
+        // Парсим полученные параметры и пытаемся произвести отправку
+        if ($request->filled('message')) {  // В поле message помещаем текст для отправки - обязательное поле
+            // Подготавливаем сообщение для отправки
+            $serviceAccount = ServiceAccount::fromJsonFile(env('FIREBASE_CREDENTIALS'));
+            $firebase = (new Factory)
+                ->withServiceAccount($serviceAccount)
+                ->create();
+            $messaging = $firebase->getMessaging();
+            // Создаем сообщение с уведомлением и информацией
+            // Ссылку на изображение захардкодил - механизм надо продумать, где и как осуществляется хранение изображений
+            $message = CloudMessage::new()
+                ->withNotification(
+                    Notification::create(
+                        $request->input('subject'),
+                        $request->input('message'),
+                        'https://upload.wikimedia.org/wikipedia/commons/e/ec/RandomBitmap.png')
+                );
+            // Получаем пользователей исходя из параметров запроса
+            $users = null;
+            if ($request->filled('created_low') && $request->filled('created_high')) {
+                $users = User::whereBetween('created_at', [
+                    Carbon::parse($request->input('created_low')),
+                    Carbon::parse($request->input('created_high'))
+                ])->get();
+            } else {
+                // Забираем всех пользователей
+                $users = User::all();
+            }
+            // Проходим по пользователям
+            foreach ($users as $userToSend) {
+                // Получаем токены
+                $deviceTokens = $userToSend->tokens->pluck('token')->all();
+                // Отправляем сообщение
+                try {
+                    $report = $messaging->sendMulticast($message, $deviceTokens);
+                    if ($report->hasFailures() && $report->successes()->count() == 0) {
+                        // Попытка отправки состоялась, но ни одного пуша отправить не удалось
+                        app('log')->debug('Failed to send push notification to the user with id=' . $userToSend->id);
+                    }
+                } catch (\Exception $e) {
+                    app('log')->debug('Failed to send push notification.');
+                    app('log')->debug($e->getMessage());
+                }
+            }
+            // Выкидываем положительный ответ - формально
+            return $this->successResponse([]);
+        }
+        // Во всех остальных случаях - ошибка
+        return $this->errorResponse(['error' => self::NOT_ENOUGH_DATA], 400);
     }
 }
