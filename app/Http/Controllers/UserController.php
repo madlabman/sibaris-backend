@@ -73,7 +73,10 @@ class UserController extends Controller
             ])->first();
             if (!empty($user)) {
                 if (app('hash')->check($request->input('password'), $user->password)) {
-                    return $this->successResponse(['token' => $user->api_token]);   // Отдаем токен пользователю
+                    return $this->successResponse([
+                        'id' => $user->id,
+                        'token' => $user->api_token
+                    ]); // Отдаем токен и id пользователю
                 }
                 // Вернуть ошибку - неверный пароль
                 return $this->errorResponse(['error' => self::WRONG_PASSWORD], 403);
