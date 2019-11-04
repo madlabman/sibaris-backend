@@ -10,7 +10,10 @@ POST http://127.0.0.1:8000/sendPush
 Content-Type: application/json
 
 {
-  "message": "New message to push"
+  "message": "test#029",
+  "subject": "У вас новое сообщение",
+  "uri": "http://yar.ru",
+  "picture": "https://www.vappingo.com/word-blog/wp-content/uploads/2012/01/unnecessary-quotation-marks-3.jpg"
 }
 
 ###
