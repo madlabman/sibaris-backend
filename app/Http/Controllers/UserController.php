@@ -168,6 +168,8 @@ class UserController extends Controller
      * subject - тема сообщения
      * created_low - нижняя граница даты регистрации в одном из стандартных форматов
      * created_high - верхняя граница даты регистрации в одном из стандартных форматов
+     * uri - ссылка для перехода
+     * picture - ссылка на изображение
      *
      * @param Request $request
      * @return Response
@@ -190,9 +192,10 @@ class UserController extends Controller
                     Notification::create(
                         $request->input('subject'),
                         $request->input('message'),
-                        'https://upload.wikimedia.org/wikipedia/commons/e/ec/RandomBitmap.png')
+                        $request->input('image'))
                 )->withData([
-                    'uri' => 'https://vk.com',
+                    'uri' => $request->input('uri'),
+                    'picture' => $request->input('picture')
                 ]);
             // Получаем пользователей исходя из параметров запроса
             $users = null;
